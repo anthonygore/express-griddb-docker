@@ -13,7 +13,7 @@ const putRow = (container) => async (val) => {
 
 const getLatestRows = (container) => async () => {
   try {
-    const query = container.query("select * where timestamp > TIMESTAMPADD(HOUR, NOW(), -1)");
+    const query = container.query("select * where timestamp > TIMESTAMPADD(MINUTE, NOW(), -5)");
     const rowset = await query.fetch();
     const data = [];
     while (rowset.hasNext()) {

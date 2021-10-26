@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Server Monitor</title>
+  <meta name="description" content="Node and GridDB server monitor">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+  <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <server-monitor v-if="serverData.length" :server-data="serverData" />
+</div>
+<script type="text/javascript">
+  Vue.component('server-monitor', {
+    extends: VueChartJs.Line,
+    props: ['serverData'],
+    mounted () {
+      const chartData = {
+        labels: [],
+          datasets: [
+          {
+            label: 'Free Memory %',
+            backgroundColor: '#f87979',
+            data: this.serverData,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }
+        ]
+      };
+      const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            type: "time",
+            distribution: "linear"
+          }],
+          title: {
+            display: false
+          }
+        }
+      }
+      this.renderChart(chartData, options)
+    }
+  })
+
+  new Vue({
+    el: "#app",
+    data: () => ({
+      serverData: []
+    }),
+    async mounted () {
+      const res = await fetch("/data");
+      const data = await res.json();
+      this.serverData = data.map(row => ({ x: row[0], y: row[1] }))
+    }
+  })
+</script>
+</body>
+</html>
